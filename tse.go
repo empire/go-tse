@@ -1,4 +1,4 @@
-package main
+package tse
 
 import (
 	_ "embed"
@@ -21,29 +21,23 @@ const (
 	TSE_SHAREHOLDERS_URL           = "http://www.tsetmc.com/Loader.aspx?Partree=15131T&c=%s"
 )
 
+var symbols map[string]string
+
+func init() {
+	var indexToSymbol map[string]string
+	symbols = make(map[string]string)
+	if err := json.Unmarshal(content, &indexToSymbol); err != nil {
+		log.Fatal(err)
+	}
+	for k, v := range indexToSymbol {
+		symbols[v] = k
+	}
+}
+
 //go:embed symbols/symbols_name.json
 var content []byte
 
-func main() {
-	index_to_symbol := map[string]string{}
-	symbols := map[string]string{}
-	if err := json.Unmarshal(content, &index_to_symbol); err != nil {
-		log.Fatal(err)
-	}
-	for k, v := range index_to_symbol {
-		symbols[v] = k
-	}
-
-	os.Mkdir("/tmp/symbols", 0755)
-
-	ids := make(chan string, 10)
-	for i := 0; i < 10; i++ {
-		go download(ids, symbols)
-	}
-	queue_tickers(symbols, ids)
-}
-
-func queue_tickers(symbols map[string]string, ids chan string) {
+func QueueTickers(ids chan string) {
 	counter := 0
 	for ticker_index := range symbols {
 		counter++
@@ -54,7 +48,7 @@ func queue_tickers(symbols map[string]string, ids chan string) {
 	close(ids)
 }
 
-func download(ids chan string, symbols map[string]string) {
+func Download(ids chan string) {
 	for ticker_index := range ids {
 		out := fmt.Sprintf("/tmp/symbols/%s.csv", symbols[ticker_index])
 		if err := download_daily_record(out, ticker_index); err != nil {
