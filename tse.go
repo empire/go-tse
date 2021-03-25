@@ -1,14 +1,13 @@
 package tse
 
 import (
-	_ "embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/empire/go-tse/internal/symbols"
 	"github.com/go-gota/gota/dataframe"
 )
 
@@ -21,25 +20,18 @@ const (
 	TSE_SHAREHOLDERS_URL           = "http://www.tsetmc.com/Loader.aspx?Partree=15131T&c=%s"
 )
 
-var symbols map[string]string
-
-func init() {
-	var indexToSymbol map[string]string
-	symbols = make(map[string]string)
-	if err := json.Unmarshal(content, &indexToSymbol); err != nil {
-		log.Fatal(err)
+func DownloadAll(path string) {
+	os.Mkdir("/tmp/symbols", 0755)
+	ids := make(chan string, 10)
+	for i := 0; i < 10; i++ {
+		go download(ids)
 	}
-	for k, v := range indexToSymbol {
-		symbols[v] = k
-	}
+	queueTickers(ids)
 }
 
-//go:embed symbols/symbols_name.json
-var content []byte
-
-func QueueTickers(ids chan string) {
+func queueTickers(ids chan string) {
 	counter := 0
-	for ticker_index := range symbols {
+	for ticker_index := range symbols.Symbols {
 		counter++
 		fmt.Printf("\r%d", counter)
 		ids <- ticker_index
@@ -48,16 +40,16 @@ func QueueTickers(ids chan string) {
 	close(ids)
 }
 
-func Download(ids chan string) {
+func download(ids chan string) {
 	for ticker_index := range ids {
-		out := fmt.Sprintf("/tmp/symbols/%s.csv", symbols[ticker_index])
-		if err := download_daily_record(out, ticker_index); err != nil {
+		out := fmt.Sprintf("/tmp/symbols/%s.csv", symbols.Symbols[ticker_index])
+		if err := downloadDailyRecord(out, ticker_index); err != nil {
 			log.Println(err)
 		}
 	}
 }
 
-func download_daily_record(out, tiker_index string) error {
+func downloadDailyRecord(out, tiker_index string) error {
 	url := fmt.Sprintf(TSE_TICKER_EXPORT_DATA_ADDRESS, tiker_index)
 	return downloadFile(url, out)
 }
