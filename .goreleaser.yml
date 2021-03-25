@@ -1,0 +1,4 @@
+builds:
+  - main: ./cmd/tse-download/main.go
+    env:
+      - CGO_ENABLED=0
