@@ -22,40 +22,22 @@ archives:
       386: i386
       amd64: x86_64
 dockers:
-  -
+  - image_templates:
+      - 'empire/go-tse:{{ .Tag }}-amd64'
+      - 'ghcr.io/empire/go-tse:{{ .Tag }}-amd64'
+    dockerfile: Dockerfile
     goos: linux
     goarch: amd64
     goarm: ''
-
-    # Templates of the Docker image names.
-    image_templates:
-      - "empire/go-tse:latest"
-      - "empire/go-tse:{{ .Tag }}"
-      - "empire/go-tse:v{{ .Major }}"
-
-    # Skips the docker push. Could be useful if you also do draft releases.
-    # If set to auto, the release will not be pushed to the docker repository
-    # in case there is an indicator for prerelease in the tag e.g. v1.0.0-rc1
-    # Defaults to false.
-    skip_push: false
-
-    # Path to the Dockerfile (from the project root).
-    dockerfile: Dockerfile
-
-    # Whether to use `docker buildx build` instead of `docker build`.
-    # You probably want to set it to true when using flags like `--platform`.
-    # If true, will also add `--load` to the build flags.
-    # Defaults to false.
     use_buildx: true
-
-    # Template of the docker build flags.
     build_flag_templates:
       - "--pull"
       - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
 checksum:
   name_template: 'checksums.txt'
 snapshot:
