@@ -31,7 +31,6 @@ dockers:
     image_templates:
       - "empire/go-tse:latest"
       - "empire/go-tse:{{ .Tag }}"
-      - "empire/go-tse:{{ .Tag }}-{{ .Env.GO_VERSION }}"
       - "empire/go-tse:v{{ .Major }}"
 
     # Skips the docker push. Could be useful if you also do draft releases.
