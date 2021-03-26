@@ -21,7 +21,9 @@ const (
 )
 
 func DownloadAll(path string) {
-	os.Mkdir("/tmp/symbols", 0755)
+	if err := os.Mkdir("/tmp/symbols", 0755); err != nil {
+		log.Fatal(err)
+	}
 	ids := make(chan string, 10)
 	for i := 0; i < 10; i++ {
 		go download(ids)
@@ -87,6 +89,5 @@ func downloadFile(url, fileName string) error {
 		df = df.Rename(newName, oldName)
 	}
 	df = df.Drop([]string{"<PER>", "<OPEN>", "<TICKER>"})
-	df.WriteCSV(file)
-	return df.Err
+	return df.WriteCSV(file)
 }
