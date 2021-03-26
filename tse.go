@@ -21,10 +21,10 @@ const (
 )
 
 func DownloadAll(path string) {
-	if err := os.Mkdir("/tmp/symbols", 0755); err != nil {
+	if err := os.Mkdir("/tmp/symbols", 0755); !(err == nil || os.IsExist(err)) {
 		log.Fatal(err)
 	}
-	ids := make(chan string, 10)
+	ids := make(chan string)
 	for i := 0; i < 10; i++ {
 		go download(ids)
 	}
