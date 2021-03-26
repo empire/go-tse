@@ -13,7 +13,6 @@ builds:
       - darwin
     goarch:
       - amd64
-      - arm64
 archives:
   - replacements:
       darwin: Darwin
@@ -23,7 +22,6 @@ archives:
       amd64: x86_64
 dockers:
   - image_templates:
-      - 'empire/go-tse:{{ .Tag }}-amd64'
       - 'ghcr.io/empire/go-tse:{{ .Tag }}-amd64'
     dockerfile: Dockerfile
     goos: linux
