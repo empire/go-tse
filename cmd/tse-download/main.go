@@ -1,9 +1,18 @@
 package main
 
 import (
+	"context"
+	"log"
+	"time"
+
 	"github.com/empire/go-tse"
 )
 
 func main() {
-	tse.DownloadAll("/tmp/symbols")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	err := tse.DownloadAll(ctx, "/tmp/symbols")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
